@@ -23,12 +23,15 @@
     function defineReactive(obj,key,value){
         observe(obj[key]);
         // https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty
+        // defineProperty不支持数组修改
         Object.defineProperty(obj,key,{
             get(){
                 return value;
             },
             set(newVal){
                 if(newVal !== value){
+                    //如果值是对象，则需要重新绑定
+                    observe(newVal);
                     value = newVal;
                     upload();
                 }
@@ -40,7 +43,7 @@
     var appHtml = document.getElementById("app");
     function upload(){
         // appHtml.innerHTML = obj.foo;
-        appHtml.innerHTML = obj.fun.a;
+        appHtml.innerHTML = obj.new;
     };
     
     //绑定数据
@@ -56,6 +59,11 @@
         }
     };
     observe(obj);
+    // set方法，用于处理新定义的对象属性
+    function set(obj,key,value){
+        defineReactive(obj,key,value)
+
+    };
     // 修改对象值
     // defineReactive(obj,"foo",'');
     // obj.foo=new Date().toTimeString();
@@ -63,6 +71,6 @@
     //     obj.foo=new Date().toTimeString();
     // }, 1000);
     obj.fun.a = "325235325325235325";
-    
+    set(obj,"new","newValue");
 </script>
 </html>
